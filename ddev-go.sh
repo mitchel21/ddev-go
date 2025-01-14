@@ -11,11 +11,63 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 RESET='\033[0m'
 
-
-# Funzione per mostrare la version
+# Funzione per mostrare la versione
 show_version() {
   echo "$SCRIPT_NAME version $VERSION"
 }
+
+# Funzione per mostrare l'help
+show_help() {
+  echo "$SCRIPT_NAME version $VERSION"
+  echo -e "${GREEN}Uso dello script:${RESET}"
+  echo -e "  ./ddev-go [comando] [opzioni]"
+  echo -e ""
+  echo -e "${BLUE}Comandi disponibili:${RESET}"
+  echo -e "  pi       Installa le dipendenze tramite Composer e NPM."
+  echo -e "  config   Mostra l'anteprima del file ddev.env e consente di modificarlo."
+  echo -e ""
+  echo -e "${BLUE}Opzioni:${RESET}"
+  echo -e "  -s       Esegue 'ddev start' al termine."
+  echo -e "  -r       Esegue 'ddev restart' al termine."
+  echo -e "  -h, --help Mostra questo messaggio di aiuto."
+  echo -e "  -v, --version Mostra la versione dello script."
+  echo -e ""
+  echo -e "${YELLOW}Note:${RESET}"
+  echo -e "  - La compilazione del tema tramite Gulp è gestita tramite la variabile di ambiente 'DDEV_COMPILE'."
+  echo -e "  - Configura 'DDEV_COMPILE=true' nel file '.ddev/ddev.env' per abilitare la compilazione."
+}
+
+# Percorso del file ddev.env
+ENV_FILE=".ddev/ddev.env"
+
+
+Per fare in modo che gli argomenti -s, -r, e pi vengano passati e poi utilizzati nel ciclo for arg in "$@"; do, puoi semplicemente lasciare che questi argomenti vengano letti nel parsing iniziale e poi utilizzati più avanti come stai cercando di fare. Ecco una modifica alla tua struttura che rispetta questa logica:
+
+Codice aggiornato:
+bash
+Copia codice
+# Parsing degli argomenti iniziali
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -v|--version)
+      show_version
+      exit 0
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    -s|-r|pi)  # Gli argomenti -s, -r, pi devono solo passare
+      # Non fare nulla qui, li lascerai gestire nel ciclo successivo
+      ;;
+    *)
+      echo -e "${RED}Comando sconosciuto: $1${RESET}"
+      show_help
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 # Funzione per controllare se DDEV è inizializzato
 check_ddev_initialized() {
@@ -69,36 +121,6 @@ create_env_file_if_missing() {
     echo -e "${GREEN}Il file $env_file esiste già.${RESET}"
   fi
 }
-
-# Funzione principale per eseguire il comando specificato
-execute_command() {
-  local command="$1"
-  case "$command" in
-    pi)
-      echo -e "${BLUE}Eseguendo installazione delle dipendenze...${RESET}"
-      composer install && npm install
-      ;;
-    help|-h|--help)
-      show_help
-      ;;
-    config)
-      show_env_preview
-      read -p "Vuoi modificare il file ddev.env? (s/n): " MODIFY
-      if [[ "$MODIFY" =~ ^[Ss]$ ]]; then
-        edit_env_file
-      else
-        echo -e "${GREEN}Nessuna modifica apportata al file ddev.env.${RESET}"
-      fi
-      ;;
-    --version|-v)
-      show_version
-      ;;
-    *)
-      echo -e "${RED}Comando non valido. Usa 'help' per l'elenco dei comandi disponibili.${RESET}"
-      ;;
-  esac
-}
-
 
 # Funzione per mostrare l'help
 show_help() {
@@ -202,6 +224,29 @@ EOF
   echo -e "${GREEN}File ddev.env creato con successo!${RESET}"
 }
 
+# Parsing degli argomenti iniziali
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -v|--version)
+      show_version
+      exit 0
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    -s|-r|pi)  # Gli argomenti -s, -r, pi devono solo passare
+      # Non fare nulla qui, li lascerai gestire nel ciclo successivo
+      ;;
+    *)
+      echo -e "${RED}Comando sconosciuto: $1${RESET}"
+      show_help
+      exit 1
+      ;;
+  esac
+  shift
+done\
+
 # Inizio dello script
 echo -e "${BLUE}Controllo ambiente...${RESET}"
 
@@ -210,10 +255,6 @@ check_ddev_initialized
 
 # Controlla se il file .env esiste
 create_env_file_if_missing
-
-# Esegui il comando specificato
-COMMAND="$1"
-execute_command "$COMMAND"
 
 # Controlla se il file ddev.env esiste
 if [ ! -f "$ENV_FILE" ]; then
@@ -300,10 +341,6 @@ for arg in "$@"; do
       ;;
     -r)
       START_COMMAND="ddev restart"
-      ;;
-    -h|help)
-      show_help
-      exit 0
       ;;
   esac
 done
