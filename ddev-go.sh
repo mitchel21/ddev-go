@@ -40,12 +40,6 @@ show_help() {
 # Percorso del file ddev.env
 ENV_FILE=".ddev/ddev.env"
 
-
-Per fare in modo che gli argomenti -s, -r, e pi vengano passati e poi utilizzati nel ciclo for arg in "$@"; do, puoi semplicemente lasciare che questi argomenti vengano letti nel parsing iniziale e poi utilizzati più avanti come stai cercando di fare. Ecco una modifica alla tua struttura che rispetta questa logica:
-
-Codice aggiornato:
-bash
-Copia codice
 # Parsing degli argomenti iniziali
 while [[ $# -gt 0 ]]; do
   case $1 in
