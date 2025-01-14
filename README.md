@@ -17,4 +17,36 @@ Per installare il pacchetto `ddev-go` sul tuo sistema, puoi eseguire il seguente
 1. **Scarica e installa** eseguendo il comando:
 
 ```bash
-curl -L https://raw.githubusercontent.com/tuo-utente/ddev-go/main/install.sh | bash
+curl -L https://raw.githubusercontent.com/mitchel21/ddev-go/main/install.sh | bash
+
+
+## Prima installazione di un progetto Drupal in locale già esistente
+
+### `pi`
+Package Install.
+
+- **Descrizione**: Avvia il composer install e il npm install(del tema).
+- **Esempio**:
+
+```bash
+ddev-go pi -s
+
+## Opzioni
+
+### `-s` o `--start`
+Avvia il progetto DDEV.
+
+- **Descrizione**: Avvia il tuo ambiente DDEV, rendendolo pronto all'uso.
+- **Esempio**:
+
+```bash
+ddev-go -s
+
+### `-r` o `--restart`
+Rivvia il progetto DDEV.
+
+- **Descrizione**: Avvia il tuo ambiente DDEV, rendendolo pronto all'uso.
+- **Esempio**:
+
+```bash
+ddev-go -s
