@@ -33,19 +33,19 @@ create_scripts_directory() {
   fi
 }
 
-## Funzione per scaricare il file ddev-go.sh
-#download_script() {
-#  echo -e "${YELLOW}Scaricando il file ddev-go.sh...${RESET}"
-#  curl -L https://raw.githubusercontent.com/mitchel21/ddev-go/main/ddev-go.sh -o "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
-#    echo -e "${RED}Errore durante il download del file ddev-go.sh.${RESET}"
-#    exit 1
-#  }
-#  chmod +x "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
-#    echo -e "${RED}Errore durante l'impostazione dei permessi eseguibili.${RESET}"
-#    exit 1
-#  }
-#  echo -e "${GREEN}File ddev-go.sh scaricato con successo!${RESET}"
-#}
+# Funzione per scaricare il file ddev-go.sh
+download_script() {
+  echo -e "${YELLOW}Scaricando il file ddev-go.sh...${RESET}"
+  curl -L https://raw.githubusercontent.com/mitchel21/ddev-go/main/ddev-go.sh -o "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
+    echo -e "${RED}Errore durante il download del file ddev-go.sh.${RESET}"
+    exit 1
+  }
+  chmod +x "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
+    echo -e "${RED}Errore durante l'impostazione dei permessi eseguibili.${RESET}"
+    exit 1
+  }
+  echo -e "${GREEN}File ddev-go.sh scaricato con successo!${RESET}"
+}
 
 # Funzione per aggiungere l'alias allo script
 configure_alias() {
@@ -59,6 +59,7 @@ configure_alias() {
   # Controlla se l'alias è già presente in .bashrc
   if ! grep -qxF "$ALIAS_LINE" "$BASHRC"; then
     # Aggiungi il commento e l'alias se non presenti
+    echo "$COMMENT_LINE" >> ""
     echo "$COMMENT_LINE" >> "$BASHRC"
     echo "$ALIAS_LINE" >> "$BASHRC"
     echo -e "${GREEN}Alias e commento aggiunti a $BASHRC.${RESET}"
@@ -93,6 +94,6 @@ echo -e "${BLUE}Inizio installazione di $SCRIPT_NAME...${RESET}"
 
 check_ddev_installed
 create_scripts_directory
-#download_script
+download_script
 configure_alias
 print_success_message
