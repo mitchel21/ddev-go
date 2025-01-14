@@ -49,22 +49,37 @@ download_script() {
 
 # Funzione per aggiungere l'alias allo script
 configure_alias() {
+  # Definiamo la riga dell'alias
   ALIAS_LINE="alias ddev-go='$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME'"
+  COMMENT_LINE="# Alias per ddev-go"
+
   BASHRC="$HOME/.bashrc"
   ZSHRC="$HOME/.zshrc"
 
+  # Controlla se l'alias è già presente in .bashrc
   if ! grep -qxF "$ALIAS_LINE" "$BASHRC"; then
+    # Aggiungi il commento e l'alias se non presenti
+    echo "$COMMENT_LINE" >> "$BASHRC"
     echo "$ALIAS_LINE" >> "$BASHRC"
-    echo -e "${GREEN}Alias aggiunto a $BASHRC.${RESET}"
+    echo -e "${GREEN}Alias e commento aggiunti a $BASHRC.${RESET}"
+  else
+    echo -e "${YELLOW}Alias già presente in $BASHRC.${RESET}"
   fi
 
+  # Controlla se l'alias è già presente in .zshrc (se esiste)
   if [ -f "$ZSHRC" ] && ! grep -qxF "$ALIAS_LINE" "$ZSHRC"; then
+    # Aggiungi il commento e l'alias se non presenti
+    echo "$COMMENT_LINE" >> "$ZSHRC"
     echo "$ALIAS_LINE" >> "$ZSHRC"
-    echo -e "${GREEN}Alias aggiunto a $ZSHRC.${RESET}"
+    echo -e "${GREEN}Alias e commento aggiunti a $ZSHRC.${RESET}"
+  elif [ -f "$ZSHRC" ]; then
+    echo -e "${YELLOW}Alias già presente in $ZSHRC.${RESET}"
   fi
 
+  # Istruzioni per applicare l'alias
   echo -e "${YELLOW}Per applicare immediatamente l'alias, esegui:${RESET} source ~/.bashrc o source ~/.zshrc"
 }
+
 
 # Funzione per mostrare istruzioni di fine installazione
 print_success_message() {
