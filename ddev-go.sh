@@ -189,6 +189,7 @@ while [[ $# -gt 0 ]]; do
       # Non fare nulla qui, li lascerai gestire nel ciclo successivo
       ;;
     config)
+          create_env_file_if_missing
           show_env_preview
           read -p "Vuoi modificare il file ddev.env? (s/n): " MODIFY
           if [[ "$MODIFY" =~ ^[Ss]$ ]]; then
