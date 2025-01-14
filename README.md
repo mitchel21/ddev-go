@@ -10,7 +10,7 @@ Prima di eseguire questo script, assicurati di avere installato:
 
 - **DDEV**: Se non hai DDEV installato, visita la [documentazione ufficiale di DDEV](https://ddev.readthedocs.io/en/stable/) per le istruzioni di installazione.
 - **Un progetto Drupal**: Lo script è pensato per progetti di sviluppo Drupal. Può essere utilizzato in qualsiasi ambiente DDEV già configurato con un progetto Drupal esistente o per la configurazione di un nuovo progetto Drupal.
-  **Nota per gli utenti Windows**: Se stai utilizzando DDEV su Windows, è necessario eseguire l'installazione da una shell Ubuntu o WSL (Windows Subsystem for Linux). Assicurati di avere Ubuntu o una distribuzione simile installata e aperta prima di eseguire il comando di installazione.
+- **Nota per gli utenti Windows**: Se stai utilizzando DDEV su Windows, è necessario eseguire l'installazione da una shell Ubuntu o WSL (Windows Subsystem for Linux). Assicurati di avere Ubuntu o una distribuzione simile installata e aperta prima di eseguire il comando di installazione.
 
 
 ## Installazione

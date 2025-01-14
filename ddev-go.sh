@@ -51,7 +51,7 @@ while [[ $# -gt 0 ]]; do
       show_help
       exit 0
       ;;
-    -s|-r|pi)  # Gli argomenti -s, -r, pi devono solo passare
+    -s|-start|-r|-restart|pi)  # Gli argomenti -s, -r, pi devono solo passare
       # Non fare nulla qui, li lascerai gestire nel ciclo successivo
       ;;
     *)
@@ -127,8 +127,8 @@ show_help() {
   echo -e "  config      Mostra l'anteprima del file ddev.env e consente di modificarlo."
   echo -e ""
   echo -e "${BLUE}Opzioni:${RESET}"
-  echo -e "  -s       Esegue 'ddev start' al termine."
-  echo -e "  -r       Esegue 'ddev restart' al termine."
+  echo -e "  -s, -start      Esegue 'ddev start' al termine."
+  echo -e "  -r, -restart      Esegue 'ddev restart' al termine."
   echo -e "  -h, help Mostra questo messaggio di aiuto."
   echo -e ""
   echo -e "${YELLOW}Note:${RESET}"
@@ -217,29 +217,6 @@ EOF
 
   echo -e "${GREEN}File ddev.env creato con successo!${RESET}"
 }
-
-# Parsing degli argomenti iniziali
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    -v|--version)
-      show_version
-      exit 0
-      ;;
-    -h|--help)
-      show_help
-      exit 0
-      ;;
-    -s|-r|pi)  # Gli argomenti -s, -r, pi devono solo passare
-      # Non fare nulla qui, li lascerai gestire nel ciclo successivo
-      ;;
-    *)
-      echo -e "${RED}Comando sconosciuto: $1${RESET}"
-      show_help
-      exit 1
-      ;;
-  esac
-  shift
-done\
 
 # Inizio dello script
 echo -e "${BLUE}Controllo ambiente...${RESET}"
