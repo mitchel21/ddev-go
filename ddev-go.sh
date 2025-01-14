@@ -62,10 +62,14 @@ edit_env_file() {
 }
 
 create_env_file_if_missing() {
-  local env_file=".ddev/ddev.env"
   if [ ! -f "$env_file" ]; then
     echo -e "${RED}Il file $env_file non esiste.${RESET}"
-    create_env_file
+    read -p "Vuoi Creare il file ddev.env? (s/n): " MODIFY
+        if [[ "$MODIFY" =~ ^[Ss]$ ]]; then
+          create_env_file
+        else
+          exit 0
+        fi
   else
     echo -e "${GREEN}Il file $env_file esiste già.${RESET}"
   fi
@@ -201,7 +205,6 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-
 # Inizio dello script
 echo -e "${BLUE}Controllo ambiente...${RESET}"
 
@@ -210,12 +213,6 @@ check_ddev_initialized
 
 # Controlla se il file .env esiste
 create_env_file_if_missing
-
-# Controlla se il file ddev.env esiste
-if [ ! -f "$ENV_FILE" ]; then
-  echo -e "${RED}Errore: il file $ENV_FILE non esiste.${RESET}"
-  create_env_file
-fi
 
 # Carica le variabili dal file ddev.env
 set -a
