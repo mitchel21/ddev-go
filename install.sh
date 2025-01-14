@@ -33,18 +33,18 @@ create_scripts_directory() {
   fi
 }
 
-# Funzione per copiare il file script nella directory globale
-copy_script() {
-  echo -e "${YELLOW}Copia di $SCRIPT_NAME nella directory globale...${RESET}"
-  cp ./ddev-go.sh "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
-    echo -e "${RED}Errore durante la copia di $SCRIPT_NAME.${RESET}"
+# Funzione per scaricare il file ddev-go.sh
+download_script() {
+  echo -e "${YELLOW}Scaricando il file ddev-go.sh...${RESET}"
+  curl -L https://raw.githubusercontent.com/mitchel21/ddev-go/main/ddev-go.sh -o "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
+    echo -e "${RED}Errore durante il download del file ddev-go.sh.${RESET}"
     exit 1
   }
   chmod +x "$DDEV_GLOBAL_SCRIPTS_DIR/$SCRIPT_NAME" || {
     echo -e "${RED}Errore durante l'impostazione dei permessi eseguibili.${RESET}"
     exit 1
   }
-  echo -e "${GREEN}File $SCRIPT_NAME copiato con successo!${RESET}"
+  echo -e "${GREEN}File ddev-go.sh scaricato con successo!${RESET}"
 }
 
 # Funzione per aggiungere l'alias allo script
@@ -77,6 +77,6 @@ echo -e "${BLUE}Inizio installazione di $SCRIPT_NAME...${RESET}"
 
 check_ddev_installed
 create_scripts_directory
-copy_script
+download_script
 configure_alias
 print_success_message
