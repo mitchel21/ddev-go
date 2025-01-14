@@ -195,6 +195,7 @@ while [[ $# -gt 0 ]]; do
      ;;
     *)
       echo -e "${RED}Comando non valido. Usa 'help' per l'elenco dei comandi disponibili.${RESET}"
+      exit 0
       ;;
   esac
   shift
