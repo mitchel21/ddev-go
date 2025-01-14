@@ -2,13 +2,16 @@
 
 ## Descrizione
 
-`ddev-go` è uno script che facilita l'installazione di uno strumento personalizzato per l'ambiente DDEV. Questo script aggiunge un alias al tuo shell per facilitare l'esecuzione di uno script specifico in DDEV.
+`ddev-go` è uno script aggiuntivo per DDEV che semplifica la gestione di variabili di ambiente e la configurazione di progetti Drupal. Lo script consente di creare automaticamente un file `ddev.env` che gestisce le variabili di ambiente specifiche per lo sviluppo, e da queste variabili viene generato dinamicamente il file di configurazione `config.yaml` per DDEV.
 
 ## Requisiti
 
 Prima di eseguire questo script, assicurati di avere installato:
 
 - **DDEV**: Se non hai DDEV installato, visita la [documentazione ufficiale di DDEV](https://ddev.readthedocs.io/en/stable/) per le istruzioni di installazione.
+- **Un progetto Drupal**: Lo script è pensato per progetti di sviluppo Drupal. Può essere utilizzato in qualsiasi ambiente DDEV già configurato con un progetto Drupal esistente o per la configurazione di un nuovo progetto Drupal.
+  **Nota per gli utenti Windows**: Se stai utilizzando DDEV su Windows, è necessario eseguire l'installazione da una shell Ubuntu o WSL (Windows Subsystem for Linux). Assicurati di avere Ubuntu o una distribuzione simile installata e aperta prima di eseguire il comando di installazione.
+
 
 ## Installazione
 
@@ -51,5 +54,5 @@ Rivvia il progetto DDEV.
 - **Esempio**:
 
 ```bash
-ddev-go -s
+ddev-go -r
 ```
