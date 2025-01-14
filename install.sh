@@ -69,6 +69,7 @@ configure_alias() {
   # Controlla se l'alias è già presente in .zshrc (se esiste)
   if [ -f "$ZSHRC" ] && ! grep -qxF "$ALIAS_LINE" "$ZSHRC"; then
     # Aggiungi il commento e l'alias se non presenti
+    echo "$COMMENT_LINE" >> ""
     echo "$COMMENT_LINE" >> "$ZSHRC"
     echo "$ALIAS_LINE" >> "$ZSHRC"
     echo -e "${GREEN}Alias e commento aggiunti a $ZSHRC.${RESET}"
