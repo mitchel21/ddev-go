@@ -62,8 +62,8 @@ edit_env_file() {
 }
 
 create_env_file_if_missing() {
-  if [ ! -f "$env_file" ]; then
-    echo -e "${RED}Il file $env_file non esiste.${RESET}"
+  if [ ! -f "$ENV_FILE" ]; then
+    echo -e "${RED}Il file $ENV_FILE non esiste.${RESET}"
     read -p "Vuoi Creare il file ddev.env? (s/n): " MODIFY
         if [[ "$MODIFY" =~ ^[Ss]$ ]]; then
           create_env_file
@@ -71,7 +71,7 @@ create_env_file_if_missing() {
           exit 0
         fi
   else
-    echo -e "${GREEN}Il file $env_file esiste già.${RESET}"
+    echo -e "${GREEN}Il file $ENV_FILE esiste già.${RESET}"
   fi
 }
 
