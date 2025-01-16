@@ -14,18 +14,60 @@ RESET='\033[0m'
 # Percorso del file ddev.env
 ENV_FILE=".ddev/ddev.env"
 
+# Definizione dei comandi validi e loro abbreviazioni
+declare -A COMMAND_ALIASES
+COMMAND_ALIASES[start]="s"
+COMMAND_ALIASES[restart]="r"
+COMMAND_ALIASES[config]="c"
+
+# Mappa delle opzioni valide per ogni comando
+declare -A VALID_OPTIONS
+VALID_OPTIONS[start]="pi"
+VALID_OPTIONS[restart]="pi"
+VALID_OPTIONS[config]=""
+
+COMMAND="$1"
+OPTIONS=()
+
 # Funzione per mostrare la versione
 show_version() {
   echo "$SCRIPT_NAME version $VERSION"
 }
 
+# Funzione per mostrare l'help
+show_help() {
+  echo "$SCRIPT_NAME version $VERSION"
+  echo -e "${GREEN}Uso dello script:${RESET}"
+  echo -e "  ./ddgo [comando] [opzioni]"
+  echo -e ""
+  echo -e "${BLUE}Comandi disponibili:${RESET}"
+  echo -e "  start, s       Avvia l'ambiente DDEV."
+  echo -e "  restart, r     Riavvia l'ambiente DDEV."
+  echo -e "  config, c      Modifica il file ddev.env."
+  echo -e ""
+  echo -e "${BLUE}Opzioni per start/restart:${RESET}"
+  echo -e "  pi             Installa le dipendenze tramite Composer e NPM."
+  echo -e ""
+  echo -e "${BLUE}Generale:${RESET}"
+  echo -e "  -h, --help     Mostra questo messaggio di aiuto."
+  echo -e "  -v, --version  Mostra la versione dello script."
+}
+
 # Funzione per controllare se DDEV è inizializzato
 check_ddev_initialized() {
+  # Inizio dello script
+  echo -e "${BLUE}Controllo ambiente...${RESET}"
+
   if [ ! -f ".ddev/config.yaml" ]; then
     echo -e "${RED}DDEV non è inizializzato nel progetto corrente.${RESET}"
-    echo -e "${YELLOW}Eseguendo la configurazione guidata di DDEV...${RESET}"
-    ddev config || { echo -e "${RED}Errore durante la configurazione di DDEV.${RESET}"; exit 1; }
-    echo -e "${GREEN}DDEV configurato con successo!${RESET}"
+    read -p "Vuoi Inizializzare DDEV? (s/n): " CHOICE
+      if [[ "$CHOICE" =~ ^[Ss]$ ]]; then
+        echo -e "${YELLOW}Eseguendo la configurazione guidata di DDEV...${RESET}"
+        ddev config || { echo -e "${RED}Errore durante la configurazione di DDEV.${RESET}"; exit 1; }
+        echo -e "${GREEN}DDEV configurato con successo!${RESET}"
+      else
+        exit 0
+      fi
   else
     echo -e "${GREEN}DDEV è già inizializzato.${RESET}"
   fi
@@ -41,26 +83,7 @@ show_env_preview() {
   fi
 }
 
-# Funzione per modificare il file ddev.env passo passo
-edit_env_file() {
-  if [ ! -f "$ENV_FILE" ]; then
-    echo -e "${RED}Il file $ENV_FILE non esiste. Creazione guidata...${RESET}"
-    create_env_file
-    return
-  fi
-
-  echo -e "${YELLOW}Modifica guidata del file ddev.env:${RESET}"
-  while read -r line; do
-    # Analizza la riga nel formato "CHIAVE=VALORE"
-    IFS='=' read -r key value <<< "$line"
-    read -p "Modifica $key (attuale: $value): " new_value
-    new_value=${new_value:-$value}
-    sed -i "s/^$key=.*/$key=$new_value/" "$ENV_FILE"
-  done < "$ENV_FILE"
-
-  echo -e "${GREEN}File ddev.env aggiornato con successo!${RESET}"
-}
-
+# Funzione per creare il file ddev.env se mancante
 create_env_file_if_missing() {
   if [ ! -f "$ENV_FILE" ]; then
     echo -e "${RED}Il file $ENV_FILE non esiste.${RESET}"
@@ -73,26 +96,6 @@ create_env_file_if_missing() {
   else
     echo -e "${GREEN}Il file $ENV_FILE esiste già.${RESET}"
   fi
-}
-
-# Funzione per mostrare l'help
-show_help() {
-  echo "$SCRIPT_NAME version $VERSION"
-  echo -e "${GREEN}Uso dello script:${RESET}"
-  echo -e "  ./ddev-go [comando] [opzioni]"
-  echo -e ""
-  echo -e "${BLUE}Comandi disponibili:${RESET}"
-  echo -e "  pi       Installa le dipendenze tramite Composer e NPM."
-  echo -e "  config      Mostra l'anteprima del file ddev.env e consente di modificarlo."
-  echo -e ""
-  echo -e "${BLUE}Opzioni:${RESET}"
-  echo -e "  -s, -start      Esegue 'ddev start' al termine."
-  echo -e "  -r, -restart      Esegue 'ddev restart' al termine."
-  echo -e "  -h, help Mostra questo messaggio di aiuto."
-  echo -e ""
-  echo -e "${YELLOW}Note:${RESET}"
-  echo -e "  - La compilazione del tema tramite Gulp è gestita tramite la variabile di ambiente 'DDEV_COMPILE'."
-  echo -e "  - Configura 'DDEV_COMPILE=true' nel file '.ddev/ddev.env' per abilitare la compilazione."
 }
 
 # Funzione per creare il file ddev.env guidato
@@ -174,58 +177,82 @@ EOF
   echo -e "${GREEN}File ddev.env creato con successo!${RESET}"
 }
 
-# Parsing degli argomenti iniziali
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    -v|--version)
-      show_version
-      exit 0
-      ;;
-    -h|--help)
-      show_help
-      exit 0
-      ;;
-    -s|-start|-r|-restart|pi)  # Gli argomenti -s, -r, pi devono solo passare
-      # Non fare nulla qui, li lascerai gestire nel ciclo successivo
-      ;;
-    config)
-          create_env_file_if_missing
-          show_env_preview
-          read -p "Vuoi modificare il file ddev.env? (s/n): " MODIFY
-          if [[ "$MODIFY" =~ ^[Ss]$ ]]; then
-            edit_env_file
-          else
-            echo -e "${GREEN}Nessuna modifica apportata al file ddev.env.${RESET}"
-          fi
-     ;;
-    *)
-      echo -e "${RED}Comando non valido. Usa 'help' per l'elenco dei comandi disponibili.${RESET}"
-      exit 0
-      ;;
-  esac
-  shift
-done
+# Funzione per modificare il file ddev.env passo passo
+edit_env_file() {
+  echo -e "${YELLOW}Modifica guidata del file ddev.env:${RESET}"
 
-# Inizio dello script
-echo -e "${BLUE}Controllo ambiente...${RESET}"
+  # Verifica se il file esiste
+  if [ ! -f "$ENV_FILE" ]; then
+    echo -e "${RED}File ddev.env non trovato! Creando un nuovo file.${RESET}"
+    create_env_file
+    return
+  fi
 
-# Controlla se DDEV è installato
-check_ddev_initialized
+  # Carica il file .env esistente
+  source "$ENV_FILE"
 
-# Controlla se il file .env esiste
-create_env_file_if_missing
+  echo -e "${YELLOW}Premi [Invio] per confermare ogni valore o modifica il valore come desiderato:${RESET}"
 
-# Carica le variabili dal file ddev.env
-set -a
-source "$ENV_FILE"
-set +a
+  read -p "Nome del progetto (current: $DDEV_PROJECT_NAME): " INPUT_PROJECT_NAME
+  DDEV_PROJECT_NAME=${INPUT_PROJECT_NAME:-$DDEV_PROJECT_NAME}
 
-# Ottieni user.name e user.email da Git locale (opzionale, se lo vuoi fare automaticamente)
-GIT_USER_NAME=$(git config --global user.name)
-GIT_USER_EMAIL=$(git config --global user.email)
+  read -p "Versione PHP (current: $DDEV_PHP_VERSION): " INPUT_PHP_VERSION
+  DDEV_PHP_VERSION=${INPUT_PHP_VERSION:-$DDEV_PHP_VERSION}
 
-# Percorso del file config.yaml
-CONFIG_FILE=".ddev/config.yaml"
+  read -p "Server web (current: $DDEV_WEBSERVER_TYPE): " INPUT_WEBSERVER_TYPE
+  DDEV_WEBSERVER_TYPE=${INPUT_WEBSERVER_TYPE:-$DDEV_WEBSERVER_TYPE}
+
+  read -p "Percorso root del progetto (current: $DDEV_DOCROOT): " INPUT_DOCROOT
+  DDEV_DOCROOT=${INPUT_DOCROOT:-$DDEV_DOCROOT}
+
+  read -p "Tipo di database (current: $DDEV_DATABASE_TYPE): " INPUT_DATABASE_TYPE
+  DDEV_DATABASE_TYPE=${INPUT_DATABASE_TYPE:-$DDEV_DATABASE_TYPE}
+
+  read -p "Versione del database (current: $DDEV_DATABASE_VERSION): " INPUT_DATABASE_VERSION
+  DDEV_DATABASE_VERSION=${INPUT_DATABASE_VERSION:-$DDEV_DATABASE_VERSION}
+
+  read -p "Versione di Composer (current: $DDEV_COMPOSER_VERSION): " INPUT_COMPOSER_VERSION
+  DDEV_COMPOSER_VERSION=${INPUT_COMPOSER_VERSION:-$DDEV_COMPOSER_VERSION}
+
+  read -p "Nome del tema attivo (current: $DDEV_THEME_ACTIVE): " INPUT_THEME_ACTIVE
+  DDEV_THEME_ACTIVE=${INPUT_THEME_ACTIVE:-$DDEV_THEME_ACTIVE}
+
+  read -p "Abilitare il watch della compilazione del tema attivo (true/false, current: $DDEV_THEME_ACTIVE_COMPILE): " INPUT_THEME_ACTIVE_COMPILE
+  DDEV_THEME_ACTIVE_COMPILE=${INPUT_THEME_ACTIVE_COMPILE:-$DDEV_THEME_ACTIVE_COMPILE}
+
+
+
+  # Genera di nuovo il file ddev.env con i nuovi valori
+  cat <<EOF > "$ENV_FILE"
+DDEV_PROJECT_NAME=$DDEV_PROJECT_NAME
+DDEV_PHP_VERSION=$DDEV_PHP_VERSION
+DDEV_WEBSERVER_TYPE=$DDEV_WEBSERVER_TYPE
+DDEV_DOCROOT=$DDEV_DOCROOT
+DDEV_DATABASE_TYPE=$DDEV_DATABASE_TYPE
+DDEV_DATABASE_VERSION=$DDEV_DATABASE_VERSION
+DDEV_COMPOSER_VERSION=$DDEV_COMPOSER_VERSION
+DDEV_THEME_ACTIVE=$DDEV_THEME_ACTIVE
+DDEV_THEME_ACTIVE_COMPILE=$DDEV_THEME_ACTIVE_COMPILE
+EOF
+
+  echo -e "${GREEN}File ddev.env modificato con successo!${RESET}"
+}
+
+
+
+# Funzione per compilare il file yaml
+compile_yaml() {
+  # Carica le variabili dal file ddev.env
+  set -a
+  source "$ENV_FILE"
+  set +a
+
+  # Ottieni user.name e user.email da Git locale (opzionale, se lo vuoi fare automaticamente)
+  GIT_USER_NAME=$(git config --global user.name)
+  GIT_USER_EMAIL=$(git config --global user.email)
+
+  # Percorso del file config.yaml
+  CONFIG_FILE=".ddev/config.yaml"
 
 # Genera il file config.yaml
 cat <<EOF > "$CONFIG_FILE"
@@ -269,7 +296,7 @@ hooks:
 EOF
 
 # Comando "pi" (Composer e NPM install)
-if [ "$COMMAND" == "pi" ]; then
+if [[ " ${OPTIONS[@]} " =~ " pi " ]]; then
   DOCROOT_TRIMMED=${DDEV_DOCROOT%/web}
   cat <<EOF >> "$CONFIG_FILE"
         - exec: cd /var/www/html/$DOCROOT_TRIMMED && composer install
@@ -282,29 +309,111 @@ if [ "$DDEV_THEME_ACTIVE_COMPILE" == "true" ]; then
     cat <<EOF >> "$CONFIG_FILE"
         - exec: cd /var/www/html/$DDEV_DOCROOT/themes/custom/$DDEV_THEME_ACTIVE && npx gulp
 EOF
-else
-    echo -e "${YELLOW}Compilazione del tema attivo disabilitata: la variabile DDEV_COMPILE è disabilitata.${RESET}"
-fi
+  else
+      echo -e "${YELLOW}Compilazione del tema attivo disabilitata: la variabile DDEV_COMPILE è disabilitata.${RESET}"
+  fi
 
-# Esegui il comando di avvio (se specificato)
-for arg in "$@"; do
-  case $arg in
-    -s)
-      START_COMMAND="ddev start"
+  # Esegui il comando di avvio (se specificato)
+  for arg in "$@"; do
+    case $arg in
+      -s)
+        START_COMMAND="ddev start"
+        ;;
+      -r)
+        START_COMMAND="ddev restart"
+        ;;
+    esac
+  done
+
+  # Notifica la generazione del file
+  echo -e "${GREEN}File config.yaml generato con successo in $CONFIG_FILE.${RESET}"
+}
+
+# Controllo dei comandi
+check_commands(){
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --version|-v)
+        show_version
+        exit 0
+        ;;
+      --help|-h)
+        COMMAND="help"
+        ;;
+      -pi|--package-install)
+        OPTIONS+=("pi")
+        ;;
+      # Comandi diretti o abbreviazioni
+      start|restart|config|s|r|c)
+        if [[ -n "$COMMAND" ]]; then
+          echo -e "${RED}Errore: Più comandi specificati. Usa un solo comando alla volta.${RESET}"
+          exit 1
+        fi
+        # Traduzione abbreviazione in comando
+        for CMD in "${!COMMAND_ALIASES[@]}"; do
+          if [[ "$1" == "$CMD" || "$1" == "${COMMAND_ALIASES[$CMD]}" ]]; then
+            COMMAND="$CMD"
+            break
+          fi
+        done
+        ;;
+      *)
+        echo -e "${RED}Errore: Comando o opzione sconosciuto '$1'. Usa 'help' per l'elenco dei comandi.${RESET}"
+        exit 1
+        ;;
+    esac
+    shift
+  done
+  echo "$COMMAND"
+  # Verifica comando valido
+  if [[ -z "$COMMAND" ]]; then
+    echo -e "${RED}Errore-tttttt: Nessun comando specificato. Usa '--help' per l'elenco dei comandi.${RESET}"
+    exit 1
+  fi
+}
+
+# Esecuzione dei comandi
+execute_commands() {
+  case $COMMAND in
+    help)
+      show_help
+      exit 0
       ;;
-    -r)
-      START_COMMAND="ddev restart"
+    start)
+      check_ddev_initialized
+      create_env_file_if_missing
+      compile_yaml
+      ddev start
+      if [[ " ${OPTIONS[@]} " =~ " pi " ]]; then
+        echo -e "${BLUE}Installazione dipendenze con Composer e NPM...${RESET}"
+        composer install && npm install
+      fi
+      ;;
+    restart)
+      check_ddev_initialized
+      create_env_file_if_missing
+      compile_yaml
+      echo -e "${BLUE}Riavvio di DDEV...${RESET}"
+      ddev restart
+      if [[ " ${OPTIONS[@]} " =~ " pi " ]]; then
+        echo -e "${BLUE}Installazione dipendenze con Composer e NPM...${RESET}"
+        composer install && npm install
+      fi
+      ;;
+    config)
+      check_ddev_initialized
+      create_env_file_if_missing
+      show_env_preview
+      edit_env_file
       ;;
   esac
-done
+}
 
-# Notifica la generazione del file
-echo -e "${GREEN}File config.yaml generato con successo in $CONFIG_FILE.${RESET}"
+start_script(){
+  # Controllo dei comandi
+  check_commands
+  # Esecuzione dei comandi
+  execute_commands
+}
 
-# Esegui il comando di start/restart
-if [ -n "$START_COMMAND" ]; then
-  echo -e "${BLUE}Esecuzione del comando $START_COMMAND...${RESET}"
-  $START_COMMAND
-else
-  echo -e "${YELLOW}Nessun comando di start/restart specificato.${RESET}"
-fi
+start_script
