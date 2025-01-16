@@ -364,10 +364,9 @@ check_commands(){
     esac
     shift
   done
-  echo "$COMMAND"
   # Verifica comando valido
   if [[ -z "$COMMAND" ]]; then
-    echo -e "${RED}Errore-tttttt: Nessun comando specificato. Usa '--help' per l'elenco dei comandi.${RESET}"
+    echo -e "${RED}Errore: Nessun comando specificato. Usa '--help' per l'elenco dei comandi.${RESET}"
     exit 1
   fi
 }
